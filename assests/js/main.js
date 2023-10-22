@@ -83,8 +83,20 @@ function updatePlayer(data) {
   songImage.src = data.image_source;
   songTitle.innerHTML = data.song_name;
   songArtist.innerHTML = data.album_name;
+  console.log(data);
+  const audio = new Audio();
 
-  const audio = new Audio(`${data.quality.low}`);
+  if (audio.paused || audio.currentTime <= 0) {
+    audio.currentTime = 0;
+    audio.src = data.quality.low;
+    audio.play();
+    document.getElementById("play").style.display = "none";
+    document.getElementById("pause").style.display = "flex";
+  } else {
+    audio.pause();
+    document.getElementById("play").style.display = "flex";
+    document.getElementById("pause").style.display = "none";
+  }
 
   playBtn.addEventListener("click", () => {
     if (audio.paused || audio.currentTime <= 0) {
@@ -99,16 +111,15 @@ function updatePlayer(data) {
   });
 
   audio.addEventListener("timeupdate", () => {
-    const pro = parseInt((audio.currentTime / audio.duration) * 100);
-    console.log(pro);
-    progressRange.value = pro;
+    const currentTime = parseInt((audio.currentTime / audio.duration) * 100);
+    progressRange.value = currentTime;
+    progressRange.addEventListener("change", () => {
+      audio.currentTime = (progressRange.value * audio.duration) / 100;
+    });
   });
 }
-progressRange.addEventListener("change", () => {
-  console.log((progressRange.value * audio.duration) / 100);
-  // audio.currentTime = progressRange.value;
-});
-// ------------- SLIDER
+
+//! -------------------------------------- SLIDER
 const sliderData = (data) => {
   const musicSlider = data
     .map((x) => {
